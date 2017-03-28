@@ -1,0 +1,21 @@
+{
+  "name": "allex_facebookmessengeranalyticsservice",
+  "version": "0.1.0",
+  "description": "FacebookMessengerAnalyticsService",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url" : "git@gitlab.hers.rs:allex_services/facebookmessengeranalytics"
+  },
+  "keywords": [
+    "ecosystem:allex",
+    "Service",
+    "FacebookMessengerAnalytics"
+  ],
+  "author": "HERS Belgrade",
+  "license": "ISC"
+}
+
