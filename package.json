@@ -16,6 +16,9 @@
     "FacebookMessengerAnalytics"
   ],
   "author": "HERS Belgrade",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies" : {
+    "valid-url" : "^1.0.9"
+  }
 }
 
