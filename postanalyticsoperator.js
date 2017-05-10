@@ -13,6 +13,7 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
   };
 
   function escapeHTMLChars(mystring){
+    if (!mystring) return mystring;
     return mystring.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
   };
 
