@@ -12,11 +12,16 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
     this.method = null;
   };
 
+  function escapeHTMLChars(mystring){
+    return mystring.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  };
+
   PostAnalyticsOperator.prototype.doRedirectJob = function(res,url,metadata){
     console.log('DAJ METADATA',metadata);
     var metaImageURL = metadata.metaImageURL;
-    var metaTitle = metadata.metaTitle;
-    var metaDescription = metadata.metaDescription;
+    var metaTitle = escapeHTMLChars(metadata.metaTitle);
+    var metaDescription = escapeHTMLChars(metadata.metaDescription);
+    console.log('POSLE ESCAPE-------->',metaTitle,metaDescription);
     /*
     res.writeHead(302,{
       'Location' : url 
