@@ -60,7 +60,6 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
   };
 
   FacebookMessengerAnalyticsService.prototype.onAnalyticsDone = function(defer,results){
-    console.log('ANALYTICS RESULTS',results);
     defer.resolve(true);
   };
 
@@ -98,7 +97,6 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
 
   FacebookMessengerAnalyticsService.prototype.doOpen = function(res,req){
     try{
-      console.log('DAJ DA VIDIMO REQ',req);
       if (!req.url){
         throw new Error('Method \'open\' requires parameter \'url\'');
       }
@@ -113,6 +111,7 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
       if (req.page_access_token !== createHashFromString(this.page_access_token)){
         throw new Error('Parameter \'page_access_token\' is incorrect');
       }
+      //console.log('------------ DAJ REQ',req);
       var metaImageURL = req.metaImageURL;
       var metaTitle = req.metaTitle;
       var metaDescription = req.metaDescription;
@@ -132,6 +131,7 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
   };
 
   FacebookMessengerAnalyticsService.prototype.open = function(url, req, res){
+    //console.log('-------- ZANIMA ME FULL REQUEST',req);
     this.extractRequestParams(url, req).then(
       this.doOpen.bind(this,res)
     ).catch(

@@ -34,7 +34,6 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
   };
 
   PostAnalyticsOperator.prototype.doRedirectJob = function(res,url,metadata){
-    console.log('------- DAJ METADATA',metadata);
     /*
     res.writeHead(302,{
       'Location' : url 
@@ -42,17 +41,15 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
     */
     var finalResponse = MetaHTML.html.replace(new RegExp(MetaHTML.placeholders.url,'g'),url);
     finalResponse = this.replaceMetaData(finalResponse,MetaHTML,metadata);
-    console.log('------------ DA VIDIMO FINAL RESPONSE',finalResponse);
     res.setHeader('content-type', 'text/html');
     res.end(finalResponse);
   };
 
   PostAnalyticsOperator.prototype.replaceHTML = function(res,url,metadata){
-    console.log('<===========> METADATA -',metadata);
     var finalHTML = BlazeHTML.html.replace(new RegExp(BlazeHTML.placeholders.url,'g'),url);
-    //finalHTML = this.replaceMetaData(finalHTML,BlazeHTML,metadata);
-    console.log('------------ DA VIDIMO FINAL HTML',finalHTML);
-    //res.setHeader('content-type', 'text/html');
+    finalHTML = this.replaceMetaData(finalHTML,BlazeHTML,metadata);
+    //console.log('------- IDEMO FINAL HTML',finalHTML);
+    res.setHeader('content-type', 'text/html');
     res.end(finalHTML);
   };
 
@@ -63,9 +60,7 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
       return;
     }
     var xFrameOptions = headers['x-frame-options'];
-    console.log('X-FRAME-OPTIONS',xFrameOptions);
     if (!!xFrameOptions && xFrameOptions !== 'ALLOWALL'){
-      console.log('<----------> DAJ DA VIDIM TAJ URL',url);
       //TODO fallback for youtube
       if (url.indexOf('https://www.youtube.com/watch?v=') === 0){
         url = url.replace('watch?v=','embed/');
@@ -75,11 +70,16 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
       this.doRedirectJob(res,url,metadata);
       return;
     }
+		//TODO fallback for youtube
+		if (url.indexOf('http://timesofindia.indiatimes.com') === 0){
+			url = url.replace('http://timesofindia.indiatimes.com','http://m.timesofindia.com');
+			this.replaceHTML(res,url,metadata);
+			return;
+		}
     this.replaceHTML(res,url,metadata);
   };
 
   PostAnalyticsOperator.prototype.errorHandler = function(res,url,error){
-    console.log('ERROR FETCHING URL',error);
     this.doRedirectJob(res,url);
   };
 
