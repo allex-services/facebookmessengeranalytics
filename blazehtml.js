@@ -18,6 +18,10 @@ function addHead(HTML){
   HTML += '<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>';
   HTML += '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>';
   HTML += '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">';
+  //custom javascript
+  HTML += '<script>';
+  HTML += 'function detectPlatform(){var userAgent = window.navigator.userAgent; var iOS = userAgent.match(/iPad/i) || userAgent.match(/iPhone/i); var chrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor); if (!!iOS) {console.log("---- IOS ----");window.location.replace("' + URLPlaceholder + '");} else if (!!chrome) {console.log("---- CHROME ----");} else {}}; detectPlatform();';
+  HTML += '</script>';
   //css
   HTML += '<script src="https://use.fontawesome.com/a302c3bc77.js"></script>';
   HTML += '<link rel="stylesheet" href="https://cdn0ntb.blaze.im/styles.css" >';
@@ -49,7 +53,7 @@ function addHead(HTML){
 }
 
 function addBody(HTML){
-  HTML += '<body style="padding:0;margin:0;overflow:hidden;">';
+  HTML += '<body style="padding:0;margin:0;overflow:hidden;" onload="">';
 	HTML += '<div class="topbar">';
 	HTML += '<a class="left carousel-control" href="#Carousel" data-slide="prev"><span><i class="fa fa-angle-left" aria-hidden="true"></i></span></a>';
 	HTML += '<a class="right carousel-control" href="#Carousel" data-slide="next"><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></a>';
