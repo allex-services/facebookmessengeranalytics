@@ -53,7 +53,7 @@ function addHead(HTML){
 }
 
 function addBody(HTML){
-  HTML += '<body style="padding:0;margin:0;overflow:hidden;" onload="">';
+  HTML += '<body style="padding:0;margin:0;overflow:hidden;">';
 	HTML += '<div class="topbar">';
 	HTML += '<a class="left carousel-control" href="#Carousel" data-slide="prev"><span><i class="fa fa-angle-left" aria-hidden="true"></i></span></a>';
 	HTML += '<a class="right carousel-control" href="#Carousel" data-slide="next"><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></a>';
