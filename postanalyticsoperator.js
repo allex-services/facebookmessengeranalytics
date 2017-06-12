@@ -21,6 +21,8 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
     var metaImageURL = metadata.metaImageURL;
     var metaTitle = escapeHTMLChars(metadata.metaTitle);
     var metaDescription = escapeHTMLChars(metadata.metaDescription);
+    var myIndex = metadata.myIndex;
+    var items = metadata.items;
     if (!!metaTitle){
       finalResponse = finalResponse.replace(new RegExp(MetaHTML.placeholders.metaTitle,'g'),metaTitle);
     }
@@ -40,15 +42,16 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
     });
     */
     var finalResponse = MetaHTML.html.replace(new RegExp(MetaHTML.placeholders.url,'g'),url);
+    finalResponse = finalResponse.replace(new RegExp(MetaHTML.placeholders.url,'g'),url);
     finalResponse = this.replaceMetaData(finalResponse,MetaHTML,metadata);
     res.setHeader('content-type', 'text/html');
     res.end(finalResponse);
   };
 
   PostAnalyticsOperator.prototype.replaceHTML = function(res,url,metadata){
-    var finalHTML = BlazeHTML.html.replace(new RegExp(BlazeHTML.placeholders.url,'g'),url);
+    var finalHTML = BlazeHTML.createHTML(metadata);
+    finalHTML = finalHTML.replace(new RegExp(BlazeHTML.placeholders.url,'g'),url);
     finalHTML = this.replaceMetaData(finalHTML,BlazeHTML,metadata);
-    //console.log('------- IDEMO FINAL HTML',finalHTML);
     res.setHeader('content-type', 'text/html');
     res.end(finalHTML);
   };
@@ -60,13 +63,15 @@ function createPostAnalyticsOperator(execlib,BlazeHTML,MetaHTML){
       return;
     }
     var xFrameOptions = headers['x-frame-options'];
-    if (!!xFrameOptions && xFrameOptions !== 'ALLOWALL'){
+    if ((!!xFrameOptions && xFrameOptions !== 'ALLOWALL') || (url.indexOf('https://m.me') >= 0)){
       //TODO fallback for youtube
+      /*
       if (url.indexOf('https://www.youtube.com/watch?v=') === 0){
         url = url.replace('watch?v=','embed/');
         this.replaceHTML(res,url,metadata);
         return;
       }
+      */
       this.doRedirectJob(res,url,metadata);
       return;
     }

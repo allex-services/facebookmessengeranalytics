@@ -3,7 +3,9 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
   
   var lib = execlib.lib,
     q = lib.q,
-    qlib = lib.qlib;
+    qlib = lib.qlib,
+    execSuite = execlib.execSuite,
+    RemoteServiceListenerServiceMixin = execSuite.RemoteServiceListenerServiceMixin;
 
   var validUrl = require('valid-url');
   var BlazeHTML = require('./blazehtml.js');
@@ -29,13 +31,16 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
 
   function FacebookMessengerAnalyticsService(prophash) {
     ParentService.call(this, prophash);
+    RemoteServiceListenerServiceMixin.call(this);
     this.appId = prophash.app_id;
     this.pageId = prophash.page_id;
     this.page_access_token = prophash.page_access_token;
     this.postAnalyticsOperator = new PostAnalyticsOperator(prophash.post_analytics);
+    this.findRemote('InternalPost');
   }
   
   ParentService.inherit(FacebookMessengerAnalyticsService, factoryCreator);
+  RemoteServiceListenerServiceMixin.addMethods(FacebookMessengerAnalyticsService);
   
   FacebookMessengerAnalyticsService.prototype.__cleanUp = function() {
     if (!!this.postAnalyticsOperator){
@@ -45,6 +50,7 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
     this.page_access_token = null;
     this.pageId = null;
     this.appId = null;
+    RemoteServiceListenerServiceMixin.prototype.destroy.call(this);
     ParentService.prototype.__cleanUp.call(this);
   };
 
@@ -95,8 +101,23 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
     return defer.promise;
   };
 
+  FacebookMessengerAnalyticsService.prototype.doGetInternalPostData = function(res,req){
+    if (!req.id){
+      console.log('Error: No id in request!');
+      res.end('{}');
+      return;
+    }
+    this.getInternalPostData(req.id).then(
+      this.doOpen.bind(this,res)
+    );
+  };
+
   FacebookMessengerAnalyticsService.prototype.doOpen = function(res,req){
     try{
+      //console.log('--------- STA IZVADI RODJO',req);
+      if (!req){
+        throw new Error('URL expired');
+      }
       if (!req.url){
         throw new Error('Method \'open\' requires parameter \'url\'');
       }
@@ -108,32 +129,36 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
       if (!req.page_access_token){
         throw new Error('Parameter \'page_access_token\' is required');
       }
-      if (req.page_access_token !== createHashFromString(this.page_access_token)){
+      if (req.page_access_token !== this.page_access_token){
         throw new Error('Parameter \'page_access_token\' is incorrect');
       }
       //console.log('------------ DAJ REQ',req);
       var metaImageURL = req.metaImageURL;
       var metaTitle = req.metaTitle;
       var metaDescription = req.metaDescription;
+      var myIndex = req.myIndex;
+      var items = req.items;
       var metadata = {
         metaTitle : metaTitle,
         metaDescription : metaDescription,
-        metaImageURL : metaImageURL
+        metaImageURL : metaImageURL,
+        myIndex : myIndex,
+        items : items
       }
       this.doAnalytics(req).then(
         this.doAfterAnalyticsJob.bind(this,res,URL,metadata),
         this.catchHelper.bind(this,res)
       );
     }catch(e){
-      console.error(e);
-      res.end('{}');
+      console.log(e);
+      res.end(e.toString());
     }
   };
 
   FacebookMessengerAnalyticsService.prototype.open = function(url, req, res){
     //console.log('-------- ZANIMA ME FULL REQUEST',req);
     this.extractRequestParams(url, req).then(
-      this.doOpen.bind(this,res)
+      this.doGetInternalPostData.bind(this,res)
     ).catch(
       this.catchHelper.bind(this,res)
     );
@@ -152,6 +177,12 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
       type : 'string'
     }
   };
+
+  FacebookMessengerAnalyticsService.prototype.getInternalPostData = execSuite.dependentServiceMethod([],['InternalPost'],function(internalPostSink,id,defer){
+    qlib.promise2defer(
+      internalPostSink.call('getData',id),defer
+    );
+  });
   
   return FacebookMessengerAnalyticsService;
 }

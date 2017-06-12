@@ -1,14 +1,23 @@
+var Util = require('./util.js');
 var MetaTitlePlaceholder = '%%META_TITLE%%';
 var MetaDescriptionPlaceholder = '%%META_DESCRIPTION%%';
 var MetaImageURLPlaceholder = '%%META_IMAGE_URL%%';
 var URLPlaceholder = '%%URL%%';
 
-function createHTML(){
+function createHTML(metadata){
   var HTML = '';
   HTML = addHead(HTML);
-  HTML = addBody(HTML);
+  HTML = addBody(HTML,metadata);
   HTML = wrapUp(HTML);
   return HTML;
+};
+
+function checkIfYoutubeURL(url){
+  if (url.indexOf('https://www.youtube.com/watch?v=') === 0){
+    return true;
+  }else{
+    return false;
+  }
 };
 
 function addHead(HTML){
@@ -20,7 +29,9 @@ function addHead(HTML){
   HTML += '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">';
   //custom javascript
   HTML += '<script>';
-  HTML += 'function detectPlatform(){var userAgent = window.navigator.userAgent; var iOS = userAgent.match(/iPad/i) || userAgent.match(/iPhone/i); var chrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor); if (!!iOS) {console.log("---- IOS ----");window.location.replace("' + URLPlaceholder + '");} else if (!!chrome) {console.log("---- CHROME ----");} else {}}; detectPlatform();';
+  HTML += 'function detectPlatform(){var userAgent = window.navigator.userAgent; var iOS = userAgent.match(/iPad/i) || userAgent.match(/iPhone/i); var chrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor); if (!chrome) {console.log("---- IOS ----");window.location.replace("' + URLPlaceholder + '");} else if (!!chrome) {console.log("---- CHROME ----");} else {}}; detectPlatform();';
+  HTML += 'function doPrev(){var currentIndex = parseInt($("#currentIndex").attr("data-index")); console.log("DAJ INDEX",currentIndex,typeof currentIndex); if (currentIndex === 0) return; $("#indicator"+currentIndex).removeClass("active"); currentIndex--; $("#indicator"+currentIndex).addClass("active"); var url = $("#article" + currentIndex).attr("data-url"); console.log("DAJ URL",url); $("#myFrame").attr("src",url); $("#currentIndex").attr("data-index",currentIndex);};';
+  HTML += 'function doNext(){var currentIndex = parseInt($("#currentIndex").attr("data-index")); var articleCount = parseInt($("#articleCount").attr("data-count")); console.log("DAJ INDEX",currentIndex,typeof currentIndex,articleCount,typeof articleCount); if (currentIndex === articleCount - 1) return; $("#indicator"+currentIndex).removeClass("active"); currentIndex++; $("#indicator"+currentIndex).addClass("active"); var url = $("#article" + currentIndex).attr("data-url"); console.log("DAJ URL",url); $("#myFrame").attr("src",url); $("#currentIndex").attr("data-index",currentIndex);};';
   HTML += '</script>';
   //css
   HTML += '<script src="https://use.fontawesome.com/a302c3bc77.js"></script>';
@@ -52,35 +63,52 @@ function addHead(HTML){
   return HTML;
 }
 
-function addBody(HTML){
+function addBody(HTML,metadata){
   HTML += '<body style="padding:0;margin:0;overflow:hidden;">';
-	HTML += '<div class="topbar">';
-	HTML += '<a class="left carousel-control" href="#Carousel" data-slide="prev"><span><i class="fa fa-angle-left" aria-hidden="true"></i></span></a>';
-	HTML += '<a class="right carousel-control" href="#Carousel" data-slide="next"><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></a>';
-	HTML += '</div>';
-	//carousel
-	HTML += '<div id="Carousel" class="caroselContainer carousel slide" data-ride="carousel" data-interval="false" data-wrap="false">';
-	HTML += '<ol class="carousel-indicators">';
-  HTML += '<li data-target="#Carousel" data-slide-to="0" class="active Carousel-target"></li>';
-  HTML += '<li data-target="#Carousel" data-slide-to="1" class="Carousel-target"></li>';
-  HTML += '<li data-target="#Carousel" data-slide-to="2" class="Carousel-target"></li>';
-  HTML += '</ol>';
+  if (metadata.myIndex !== undefined && !!metadata.items && !!metadata.items.length){
+	  HTML += '<div class="topbar">';
+    HTML += '<a id="previousButton" class="left carousel-control" onclick="doPrev()"><span><i class="fa fa-angle-left" aria-hidden="true"></i></span></a>';
+    HTML += '<a id="nextButton" class="right carousel-control" onclick="doNext()"><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></a>';
+    HTML += '</div>';
+    HTML += '<div id="Carousel" class="caroselContainer carousel slide">';
+    //carousel
+    HTML += '<ol class="carousel-indicators">';
+    var j=0;
+    for (var i=0; i<metadata.items.length; i++){
+      if (!metadata.items[i].url) continue;
+      if (Util.checkURL(metadata.items[i].url).blacklisted) continue;
+      HTML += '<li id="indicator' + j + '" class="' + (metadata.myIndex !== i ? '' : 'active ') + ' Carousel-target"></li>';
+      j++;
+    }
+    HTML += '</ol>';
+  }
 	HTML += '<div class="carousel-inner">'
-  //item 0
-  HTML += '<div data-slide-no="0" class="item active">';
-  HTML += '<iframe style="margin:0;width:100%;height:100%;border:0px solid white;" src="' + URLPlaceholder + '" allowfullscreen></iframe>';
-  HTML += '</div>';
-  //item 1
-  HTML += '<div data-slide-no="1" class="item">';
-  HTML += '<iframe style="margin:0;width:100%;height:100%;border:0px solid white;" src="' + URLPlaceholder + '" allowfullscreen></iframe>';
-  HTML += '</div>';
-  //item 2
-  HTML += '<div data-slide-no="2" class="item">';
-  HTML += '<iframe style="margin:0;width:100%;height:100%;border:0px solid white;" src="' + URLPlaceholder + '" allowfullscreen></iframe>';
-  HTML += '</div>';
-  HTML += '</div>';
-  HTML += '</div>';
+  if (metadata.myIndex === undefined || !metadata.items || !metadata.items.length){
+    //only 1 item 
+    HTML += '<div class="item active">';
+    HTML += '<iframe style="margin:0;width:100%;height:100%;border:0px solid white;" src="' + URLPlaceholder + '" allowfullscreen></iframe>';
+    HTML += '</div>';
+  }else{
+    HTML += '<div class="item active">';
+    HTML += '<iframe id="myFrame" style="margin:0;width:100%;height:100%;border:0px solid white;" src="' + metadata.items[metadata.myIndex].url + '" allowfullscreen></iframe>';
+    HTML += '</div>';
+    var myIndex = metadata.myIndex;
+    var currentIndex = metadata.myIndex;
+    var articleCount = 0;
+    for (var i=0; i<metadata.items.length; i++){
+      if (!metadata.items[i].url || Util.checkURL(metadata.items[i].url).blacklisted){
+        if (myIndex >= i) currentIndex--;
+        continue;
+      }
+      HTML += '<div id="article' + articleCount + '" data-url="' + metadata.items[i].url + '" style="display:none;"></div>';
+      articleCount++;
+    }
+    HTML += '<div id="currentIndex" data-index="' + currentIndex + '" style="display:none;"></div>';
+    HTML += '<div id="articleCount" data-count="' + articleCount + '" style="display:none;"></div>';
+  }
   //end of carousel
+  HTML += '</div>';
+  HTML += '</div>';
   HTML += '</body>';
   return HTML;
 }
@@ -98,5 +126,5 @@ module.exports = {
     metaImageURL : MetaImageURLPlaceholder,
     url : URLPlaceholder
   },
-  html : createHTML()
+  createHTML : createHTML
 };
