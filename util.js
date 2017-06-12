@@ -1,6 +1,8 @@
 var blacklistedURLs = [
   'https://www.youtube.com/watch?v=',
   'www.thehindu.com',
+  'www.npr.com',
+  'www.forbes.com',
   'www.theverge.com',
   'www.theguardian.com',
   'www.independent.co.uk',
