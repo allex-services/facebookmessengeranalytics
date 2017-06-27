@@ -83,7 +83,7 @@ function addBody(HTML,metadata){
     HTML += '</ol>';
   }
 	HTML += '<div class="carousel-inner">'
-  if (metadata.myIndex === undefined || !metadata.items || !metadata.items.length){
+  if (metadata.myIndex === undefined || !metadata.items || !metadata.items.length || !metadata.items[metadata.myIndex]){
     //only 1 item 
     HTML += '<div class="item active">';
     HTML += '<iframe style="margin:0;width:100%;height:100%;border:0px solid white;" src="' + URLPlaceholder + '" allowfullscreen></iframe>';
