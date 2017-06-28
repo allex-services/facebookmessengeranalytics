@@ -35,7 +35,7 @@ function addHead(HTML){
   HTML += '</script>';
   //css
   HTML += '<script src="https://use.fontawesome.com/a302c3bc77.js"></script>';
-  HTML += '<link rel="stylesheet" href="https://cdn0ntb.blaze.im/styles.css" >';
+  HTML += '<link rel="stylesheet" href="https://bbcdn0.blaze.im/styles.css" >';
   /*
   HTML += '<style type="text/css">';
 	HTML += 'body { padding-top:50px; } ';
