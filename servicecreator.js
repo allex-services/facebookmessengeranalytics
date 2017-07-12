@@ -129,9 +129,11 @@ function createFacebookMessengerAnalyticsService(execlib, ParentService) {
       if (!req.page_access_token){
         throw new Error('Parameter \'page_access_token\' is required');
       }
+      /*
       if (req.page_access_token !== this.page_access_token){
         throw new Error('Parameter \'page_access_token\' is incorrect');
       }
+      */
       //console.log('------------ DAJ REQ',req);
       var metaImageURL = req.metaImageURL;
       var metaTitle = req.metaTitle;
